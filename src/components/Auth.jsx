@@ -12,8 +12,10 @@ export default function Auth() {
     e.preventDefault();
     setBusy(true);
     setMessage("");
-    const fn = mode === "signin" ? supabase.auth.signInWithPassword : supabase.auth.signUp;
-    const { data, error } = await fn.call(supabase.auth, { email, password });
+    const { data, error } = mode === "signin"
+      ? await supabase.auth.signInWithPassword({ email, password })
+      // Send the confirmation link back to whichever site the user signed up on
+      : await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
     setBusy(false);
     if (error) return setMessage(error.message);
     if (mode === "signup" && !data.session) {
